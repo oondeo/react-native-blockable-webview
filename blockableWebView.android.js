@@ -22,7 +22,6 @@ import {
   View,
   requireNativeComponent,
 } from 'react-native';
-import ReactNative from 'react/lib/ReactNative';
 
 import keyMirror from 'keymirror';
 import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource';
