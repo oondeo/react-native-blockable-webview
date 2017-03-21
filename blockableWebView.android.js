@@ -62,16 +62,6 @@ class WebView extends React.Component {
     startInLoadingState: PropTypes.bool, // force WebView to show loadingView on first load
     style: View.propTypes.style,
 
-    html: deprecatedPropType(
-      PropTypes.string,
-      'Use the `source` prop instead.'
-    ),
-
-    url: deprecatedPropType(
-      PropTypes.string,
-      'Use the `source` prop instead.'
-    ),
-
     /**
      * Loads static html or a uri (with optional headers) in the WebView.
      */
