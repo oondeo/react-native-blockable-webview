@@ -9,6 +9,6 @@
  * @providesModule blockableWebView
  * @noflow
  */
-'use strict';
+import { WebView } from 'react-native';
 
-module.exports = false;
+module.exports = WebView;
