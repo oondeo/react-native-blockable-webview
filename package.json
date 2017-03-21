@@ -1,6 +1,6 @@
 {
   "name": "react-native-blockable-webview",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A React Native webview that allows the blocking of navigation",
   "main": "index.js",
   "directories": {
@@ -11,16 +11,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rseemann/react-native-blockable-webview.git"
+    "url": "git+https://github.com/bltnico/react-native-blockable-webview.git"
   },
   "keywords": [
     "react-native",
     "webview"
   ],
-  "author": "Rafael Seemann",
+  "author": "Nicolas Bellot",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/rseemann/react-native-blockable-webview/issues"
+    "url": "https://github.com/bltnico/react-native-blockable-webview/issues"
   },
-  "homepage": "https://github.com/rseemann/react-native-blockable-webview#readme"
+  "homepage": "https://github.com/bltnico/react-native-blockable-webview#readme"
 }

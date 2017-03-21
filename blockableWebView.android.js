@@ -10,28 +10,27 @@
  */
 'use strict';
 
-var EdgeInsetsPropType = require('EdgeInsetsPropType');
-var ActivityIndicator = require('ActivityIndicator');
-var RCTDeviceEventEmitter = require('RCTDeviceEventEmitter');
-var React = require('React');
-var ReactNative = require('react/lib/ReactNative');
-var ReactNativeViewAttributes = require('ReactNativeViewAttributes');
-var StyleSheet = require('StyleSheet');
-var UIManager = require('UIManager');
-var View = require('View');
+import React, { PropTypes } from 'react';
+import {
+  findNodeHandle,
+  ActivityIndicator,
+  EdgeInsetsPropType,
+  DeviceEventEmitter,
+  ReactNativeViewAttributes,
+  StyleSheet,
+  UIManager,
+  View,
+  requireNativeComponent,
+} from 'react-native';
+import ReactNative from 'react/lib/ReactNative';
 
-var deprecatedPropType = require('deprecatedPropType');
-var keyMirror = require('fbjs/lib/keyMirror');
-var merge = require('merge');
-var requireNativeComponent = require('requireNativeComponent');
-var resolveAssetSource = require('resolveAssetSource');
+import keyMirror from 'keymirror';
+import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource';
 
-var PropTypes = React.PropTypes;
+const RCT_WEBVIEW_REF = 'webview';
+const WEBVIEW_BLOCKED_EVENT = 'navigationBlocked'
 
-var RCT_WEBVIEW_REF = 'webview';
-var WEBVIEW_BLOCKED_EVENT = 'navigationBlocked'
-
-var WebViewState = keyMirror({
+const WebViewState = keyMirror({
   IDLE: null,
   LOADING: null,
   ERROR: null,
@@ -187,7 +186,7 @@ class WebView extends React.Component {
       this.setState({viewState: WebViewState.LOADING});
     }
 
-    RCTDeviceEventEmitter.addListener(WEBVIEW_BLOCKED_EVENT, this.onNavigationBlocked);
+    DeviceEventEmitter.addListener(WEBVIEW_BLOCKED_EVENT, this.onNavigationBlocked);
   }
 
   render() {
@@ -299,7 +298,7 @@ class WebView extends React.Component {
   };
 
   getWebViewHandle = () => {
-    return ReactNative.findNodeHandle(this.refs[RCT_WEBVIEW_REF]);
+    return findNodeHandle(this.refs[RCT_WEBVIEW_REF]);
   };
 
   onLoadingStart = (event) => {
@@ -337,9 +336,9 @@ class WebView extends React.Component {
   };
 }
 
-var BlockableWebView = requireNativeComponent('BlockableWebView', WebView);
+const BlockableWebView = requireNativeComponent('BlockableWebView', WebView);
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
