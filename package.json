@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/bltnico/react-native-blockable-webview/issues"
   },
-  "homepage": "https://github.com/bltnico/react-native-blockable-webview#readme"
+  "homepage": "https://github.com/bltnico/react-native-blockable-webview#readme",
+  "dependencies": {
+    "keymirror": "^0.1.1"
+  }
 }

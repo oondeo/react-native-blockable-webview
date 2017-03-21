@@ -23,7 +23,7 @@ import {
   requireNativeComponent,
 } from 'react-native';
 
-import keyMirror from 'react/lib/keyMirror';
+import keyMirror from 'keymirror';
 import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource';
 
 const RCT_WEBVIEW_REF = 'webview';
