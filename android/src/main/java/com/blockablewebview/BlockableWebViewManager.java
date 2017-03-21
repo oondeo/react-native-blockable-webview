@@ -121,7 +121,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView webView, String url) {
-            if (url.startsWith("http://") || url.startsWith("https://")) {
+            if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("gsoiso://")) {
                 boolean shouldBlock = false;
 
                 ReadableMap[] policies = ((BlockableWebView) webView).getNavigationBlockingPolicies();
