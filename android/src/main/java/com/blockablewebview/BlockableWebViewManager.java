@@ -187,6 +187,8 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
                   return true;
               }
             }
+
+            return false;
         }
 
         @Override
