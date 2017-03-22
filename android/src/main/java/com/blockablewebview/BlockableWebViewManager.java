@@ -127,7 +127,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
             for (int h = 0; h < hosts.length; h++) {
               host = hosts[h];
 
-              if (url.startsWith(host)) {
+              if (url.startsWith(host.getString(h))) {
                 boolean shouldBlock = false;
 
                 ReadableMap[] policies = ((BlockableWebView) webView).getNavigationBlockingPolicies();
