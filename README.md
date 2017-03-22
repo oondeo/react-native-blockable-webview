@@ -1,6 +1,6 @@
 # react-native-blockable-webview
 
-**Note : **
+**Note :**
 
   * This is a fork project, thanks to https://github.com/rseemann/react-native-blockable-webview
 
