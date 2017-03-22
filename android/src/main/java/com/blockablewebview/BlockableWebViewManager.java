@@ -177,14 +177,12 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
                 }
 
                 return shouldBlock;
+              } else {
+                  Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                  intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                  webView.getContext().startActivity(intent);
+                  return true;
               }
-
-              break;
-            } else {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                webView.getContext().startActivity(intent);
-                return true;
             }
         }
 
