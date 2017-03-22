@@ -320,7 +320,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
             }
         }
 
-        public ReadableMap[] getAvailableHosts() {
+        public String[] getAvailableHosts() {
           return availableHosts;
         }
 
