@@ -123,11 +123,13 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
         public boolean shouldOverrideUrlLoading(WebView webView, String url) {
             String[] hosts = ((BlockableWebView) webView).getAvailableHosts();
             String host;
+            boolean openIntent = false;
 
             for (int h = 0; h < hosts.length; h++) {
               host = hosts[h];
 
               if (url.startsWith(host)) {
+                openIntent = false;
                 boolean shouldBlock = false;
 
                 ReadableMap[] policies = ((BlockableWebView) webView).getNavigationBlockingPolicies();
@@ -178,11 +180,16 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
 
                 return shouldBlock;
               } else {
-                  Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                  intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                  webView.getContext().startActivity(intent);
-                  return true;
+                openIntent = true;
+                continue;
               }
+            }
+
+            if (openIntent) {
+              Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+              intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+              webView.getContext().startActivity(intent);
+              return true;
             }
 
             return false;
