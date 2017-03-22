@@ -121,16 +121,13 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView webView, String url) {
-            ReadableMap[] hosts = ((BlockableWebView) webView).getAvailableHosts();
-            ReadableMap host;
+            String[] hosts = ((BlockableWebView) webView).getAvailableHosts();
+            String host;
 
             for (int h = 0; h < hosts.length; h++) {
               host = hosts[h];
-              ReadableMapKeySetIterator ht = host.keySetIterator();
-              String hostKey;
-              hostKey = ht.nextKey();
 
-              if (url.startsWith(host.getString(hostKey))) {
+              if (url.startsWith(host)) {
                 boolean shouldBlock = false;
 
                 ReadableMap[] policies = ((BlockableWebView) webView).getNavigationBlockingPolicies();
@@ -261,7 +258,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
 
         private
         @Nullable
-        ReadableMap[] availableHosts;
+        String[] availableHosts;
 
         /**
          * WebView must be created with an context of the current activity
@@ -328,16 +325,11 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
         }
 
         public void setAvailableHosts(@Nullable ReadableArray hosts) {
-          if (hosts == null || hosts.size() == 0) {
-            availableHosts = null;
-            return;
+          String[] _hosts = new String[hosts.size()];
+          for (int i = 0; i < _hosts.length; i++) {
+              _hosts[i] = hosts.getString(i);
           }
-
-          availableHosts = new ReadableMap[hosts.size()];
-
-          for (int i = 0; i < hosts.size(); i++) {
-              availableHosts[i] = hosts.getMap(i);
-          }
+          availableHosts = _hosts;
         }
     }
 
