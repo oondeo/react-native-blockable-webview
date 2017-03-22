@@ -121,7 +121,13 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView webView, String url) {
-            if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("gsoiso://")) {
+            ReadableArray[] hosts = ((BlockableWebView) webView).getAvailableHosts();
+            String host;
+
+            for (int i = 0; i < hosts.length; i++) {
+              host = hosts[i];
+
+              if (url.startsWith(host)) {
                 boolean shouldBlock = false;
 
                 ReadableMap[] policies = ((BlockableWebView) webView).getNavigationBlockingPolicies();
@@ -171,6 +177,9 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
                 }
 
                 return shouldBlock;
+              }
+
+              break;
             } else {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -247,6 +256,10 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
         @Nullable
         ReadableMap[] navigationBlockingPolicies;
 
+        private
+        @Nullable
+        ReadableArray[] availableHosts;
+
         /**
          * WebView must be created with an context of the current activity
          *
@@ -305,6 +318,23 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
             for (int i = 0; i < policies.size(); i++) {
                 navigationBlockingPolicies[i] = policies.getMap(i);
             }
+        }
+
+        public ReadableArray[] getAvailableHosts() {
+          return availableHosts;
+        }
+
+        public void setAvailableHosts(@Nullable ReadableArray hosts) {
+          if (hosts == null || hosts.size() == 0) {
+            availableHosts = null;
+            return;
+          }
+
+          availableHosts = new ReadableArray[hosts.size()];
+
+          for (int i = 0; i < hosts.size(); i++) {
+              availableHosts[i] = hosts.getMap(i);
+          }
         }
     }
 
@@ -449,6 +479,11 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
     @ReactProp(name = "navigationBlockingPolicies")
     public void setNavigationBlockingPolicies(WebView view, @Nullable ReadableArray policies) {
         ((BlockableWebView) view).setNavigationBlockingPolicies(policies);
+    }
+
+    @ReactProp(name = "availableHosts")
+    public void setAvailableHosts(WebView view, @Nullable ReadableArray host) {
+      ((BlockableWebView) view).setAvailableHosts(host);
     }
 
     @Override

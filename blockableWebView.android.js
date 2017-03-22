@@ -157,11 +157,17 @@ class WebView extends React.Component {
      * `navigationBlockingPolicies`.
      */
     onNavigationBlocked: PropTypes.func,
+
+    /**
+     * Determines available hosts before webview load
+     */
+    availableHosts: PropTypes.arrayOf(PropTypes.string),
   };
 
   static defaultProps = {
     javaScriptEnabled : true,
     scalesPageToFit: true,
+    availableHosts: ['http://', 'https://'],
   };
 
   state = {
@@ -234,6 +240,7 @@ class WebView extends React.Component {
         mediaPlaybackRequiresUserAction={this.props.mediaPlaybackRequiresUserAction}
         onNavigationBlocked={this.props.onNavigationBlocked}
         navigationBlockingPolicies={this.props.navigationBlockingPolicies}
+        availableHosts={this.props.availableHosts}
       />;
 
     return (
