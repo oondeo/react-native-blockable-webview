@@ -122,9 +122,9 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
         @Override
         public boolean shouldOverrideUrlLoading(WebView webView, String url) {
             ReadableMap[] hosts = ((BlockableWebView) webView).getAvailableHosts();
-            String host;
+            ReadableMap host;
 
-            for (int h = 0; h < hosts.length; i++) {
+            for (int h = 0; h < hosts.length; h++) {
               host = hosts[h];
 
               if (url.startsWith(host)) {
@@ -328,7 +328,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
             return;
           }
 
-          availableHosts = new ReadableArray[hosts.size()];
+          availableHosts = new ReadableMap[hosts.size()];
 
           for (int i = 0; i < hosts.size(); i++) {
               availableHosts[i] = hosts.getMap(i);
