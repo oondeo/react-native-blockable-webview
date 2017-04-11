@@ -6,7 +6,7 @@
 //  Copyright © 2016 Rafael Seemann. All rights reserved.
 //
 
-#import "RCTView.h"
+#import <React/RCTView.h>
 
 @class BlockableWebView;
 
