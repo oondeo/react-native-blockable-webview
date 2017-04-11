@@ -82,6 +82,8 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
     public static final int COMMAND_GO_FORWARD = 2;
     public static final int COMMAND_RELOAD = 3;
     public static final int COMMAND_STOP_LOADING = 4;
+    public static final int COMMAND_POST_MESSAGE = 5;
+    public static final int COMMAND_INJECT_JAVASCRIPT = 6;
 
     // Use `webView.loadUrl("about:blank")` to reliably reset the view
     // state and release page resources (including any running JavaScript).
@@ -103,6 +105,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
             if (!mLastLoadFailed) {
                 BlockableWebView reactWebView = (BlockableWebView) webView;
                 reactWebView.callInjectedJavaScript();
+                reactWebView.linkBridge();
                 emitFinishEvent(webView, url);
             }
         }
@@ -255,9 +258,8 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
      * to call {@link WebView#destroy} on activty destroy event and also to clear the client
      */
     private static class BlockableWebView extends WebView implements LifecycleEventListener {
-        private
-        @Nullable
-        String injectedJS;
+        private @Nullable String injectedJS;
+        private boolean messagingEnabled = false;
 
         private
         @Nullable
@@ -266,6 +268,19 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
         private
         @Nullable
         String[] availableHosts;
+
+        private class ReactWebViewBridge {
+          ReactWebView mContext;
+
+          ReactWebViewBridge(ReactWebView c) {
+            mContext = c;
+          }
+
+          @JavascriptInterface
+          public void postMessage(String message) {
+            mContext.onMessage(message);
+          }
+        }
 
         /**
          * WebView must be created with an context of the current activity
@@ -297,12 +312,54 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
             injectedJS = js;
         }
 
+        public void setMessagingEnabled(boolean enabled) {
+          if (messagingEnabled == enabled) {
+            return;
+          }
+
+          messagingEnabled = enabled;
+          if (enabled) {
+            addJavascriptInterface(new ReactWebViewBridge(this), BRIDGE_NAME);
+            linkBridge();
+          } else {
+            removeJavascriptInterface(BRIDGE_NAME);
+          }
+        }
+
         public void callInjectedJavaScript() {
-            if (getSettings().getJavaScriptEnabled() &&
-                    injectedJS != null &&
-                    !TextUtils.isEmpty(injectedJS)) {
-                loadUrl("javascript:(function() {\n" + injectedJS + ";\n})();");
+          if (getSettings().getJavaScriptEnabled() &&
+              injectedJS != null &&
+              !TextUtils.isEmpty(injectedJS)) {
+            loadUrl("javascript:(function() {\n" + injectedJS + ";\n})();");
+          }
+        }
+
+        public void linkBridge() {
+          if (messagingEnabled) {
+            if (ReactBuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+              // See isNative in lodash
+              String testPostMessageNative = "String(window.postMessage) === String(Object.hasOwnProperty).replace('hasOwnProperty', 'postMessage')";
+              evaluateJavascript(testPostMessageNative, new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String value) {
+                  if (value.equals("true")) {
+                    FLog.w(ReactConstants.TAG, "Setting onMessage on a WebView overrides existing values of window.postMessage, but a previous value was defined");
+                  }
+                }
+              });
             }
+
+            loadUrl("javascript:(" +
+              "window.originalPostMessage = window.postMessage," +
+              "window.postMessage = function(data) {" +
+                BRIDGE_NAME + ".postMessage(String(data));" +
+              "}" +
+            ")");
+          }
+        }
+
+        public void onMessage(String message) {
+          dispatchEvent(this, new TopMessageEvent(this.getId(), message));
         }
 
         private void cleanupCallbacksAndDestroy() {
@@ -369,6 +426,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
         mWebViewConfig.configWebView(webView);
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
+        webView.getSettings().setDomStorageEnabled(true);
 
         // Fixes broken full-screen modals/galleries due to body height being 0.
         webView.setLayoutParams(
@@ -413,6 +471,11 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
     @ReactProp(name = "injectedJavaScript")
     public void setInjectedJavaScript(WebView view, @Nullable String injectedJavaScript) {
         ((BlockableWebView) view).setInjectedJavaScript(injectedJavaScript);
+    }
+
+    @ReactProp(name = "messagingEnabled")
+    public void setMessagingEnabled(WebView view, boolean enabled) {
+      ((ReactWebView) view).setMessagingEnabled(enabled);
     }
 
     @ReactProp(name = "source")
@@ -502,7 +565,10 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
                 "goBack", COMMAND_GO_BACK,
                 "goForward", COMMAND_GO_FORWARD,
                 "reload", COMMAND_RELOAD,
-                "stopLoading", COMMAND_STOP_LOADING);
+                "stopLoading", COMMAND_STOP_LOADING,
+                "postMessage", COMMAND_POST_MESSAGE,
+                "injectJavaScript", COMMAND_INJECT_JAVASCRIPT
+              );
     }
 
     @Nullable
@@ -530,7 +596,29 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
                 break;
             case COMMAND_STOP_LOADING:
                 root.stopLoading();
-                break;
+                break
+            case COMMAND_POST_MESSAGE:
+              try {
+                JSONObject eventInitDict = new JSONObject();
+                eventInitDict.put("data", args.getString(0));
+                root.loadUrl("javascript:(function () {" +
+                  "var event;" +
+                  "var data = " + eventInitDict.toString() + ";" +
+                  "try {" +
+                    "event = new MessageEvent('message', data);" +
+                  "} catch (e) {" +
+                    "event = document.createEvent('MessageEvent');" +
+                    "event.initMessageEvent('message', true, true, data.data, data.origin, data.lastEventId, data.source);" +
+                  "}" +
+                  "document.dispatchEvent(event);" +
+                "})();");
+              } catch (JSONException e) {
+                throw new RuntimeException(e);
+              }
+              break;
+          case COMMAND_INJECT_JAVASCRIPT:
+            root.loadUrl("javascript:" + args.getString(0));
+            break;
         }
     }
 
