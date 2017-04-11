@@ -596,7 +596,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
                 break;
             case COMMAND_STOP_LOADING:
                 root.stopLoading();
-                break
+                break;
             case COMMAND_POST_MESSAGE:
               try {
                 JSONObject eventInitDict = new JSONObject();
