@@ -25,8 +25,12 @@ import android.view.ViewGroup.LayoutParams;
 import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.JavascriptInterface;
+import android.webkit.ValueCallback;
 import android.webkit.WebViewClient;
 
+import com.facebook.common.logging.FLog;
+import com.facebook.react.common.ReactConstants;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.LifecycleEventListener;
 import com.facebook.react.bridge.ReactContext;
@@ -47,6 +51,10 @@ import com.facebook.react.views.webview.WebViewConfig;
 import com.facebook.react.views.webview.events.TopLoadingErrorEvent;
 import com.facebook.react.views.webview.events.TopLoadingFinishEvent;
 import com.facebook.react.views.webview.events.TopLoadingStartEvent;
+import com.facebook.react.views.webview.events.TopMessageEvent;
+
+import org.json.JSONObject;
+import org.json.JSONException;
 
 /**
  * Manages instances of {@link WebView}
@@ -75,6 +83,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
 
     private static final String HTML_ENCODING = "UTF-8";
     private static final String HTML_MIME_TYPE = "text/html; charset=utf-8";
+    private static final String BRIDGE_NAME = "__REACT_WEB_VIEW_BRIDGE";
 
     private static final String HTTP_METHOD_POST = "POST";
 
@@ -94,7 +103,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
     @Nullable
     WebView.PictureListener mPictureListener;
 
-    private static class ReactWebViewClient extends WebViewClient {
+    private static class BlockableWebViewClient extends WebViewClient {
 
         private boolean mLastLoadFailed = false;
 
@@ -103,9 +112,9 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
             super.onPageFinished(webView, url);
 
             if (!mLastLoadFailed) {
-                BlockableWebView reactWebView = (BlockableWebView) webView;
-                reactWebView.callInjectedJavaScript();
-                reactWebView.linkBridge();
+                BlockableWebView BlockableWebView = (BlockableWebView) webView;
+                BlockableWebView.callInjectedJavaScript();
+                BlockableWebView.linkBridge();
                 emitFinishEvent(webView, url);
             }
         }
@@ -269,10 +278,10 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
         @Nullable
         String[] availableHosts;
 
-        private class ReactWebViewBridge {
-          ReactWebView mContext;
+        private class BlockableWebViewBridge {
+          BlockableWebView mContext;
 
-          ReactWebViewBridge(ReactWebView c) {
+          BlockableWebViewBridge(BlockableWebView c) {
             mContext = c;
           }
 
@@ -319,7 +328,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
 
           messagingEnabled = enabled;
           if (enabled) {
-            addJavascriptInterface(new ReactWebViewBridge(this), BRIDGE_NAME);
+            addJavascriptInterface(new BlockableWebViewBridge(this), BRIDGE_NAME);
             linkBridge();
           } else {
             removeJavascriptInterface(BRIDGE_NAME);
@@ -475,7 +484,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
 
     @ReactProp(name = "messagingEnabled")
     public void setMessagingEnabled(WebView view, boolean enabled) {
-      ((ReactWebView) view).setMessagingEnabled(enabled);
+      ((BlockableWebView) view).setMessagingEnabled(enabled);
     }
 
     @ReactProp(name = "source")
@@ -554,7 +563,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
     @Override
     protected void addEventEmitters(ThemedReactContext reactContext, WebView view) {
         // Do not register default touch emitter and let WebView implementation handle touches
-        view.setWebViewClient(new ReactWebViewClient());
+        view.setWebViewClient(new BlockableWebViewClient());
     }
 
     @Override

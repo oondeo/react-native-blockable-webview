@@ -4,3 +4,4 @@ ios/BlockableWebView/.DS_Store
 ios/BlockableWebView/.DS_Store
 node_modules
 .idea
+*.tgz
