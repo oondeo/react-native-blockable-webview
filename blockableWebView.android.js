@@ -22,6 +22,7 @@ import {
   UIManager,
   View,
   requireNativeComponent,
+  ViewPropTypes,
 } from 'react-native';
 
 import keyMirror from 'keymirror';
@@ -49,7 +50,7 @@ var defaultRenderLoading = () => (
  */
 class WebView extends React.Component {
   static propTypes = {
-    ...View.propTypes,
+    ...ViewPropTypes,
     renderError: PropTypes.func,
     renderLoading: PropTypes.func,
     onLoad: PropTypes.func,
@@ -62,7 +63,7 @@ class WebView extends React.Component {
     onMessage: PropTypes.func,
     onContentSizeChange: PropTypes.func,
     startInLoadingState: PropTypes.bool, // force WebView to show loadingView on first load
-    style: View.propTypes.style,
+    style: ViewPropTypes.style,
 
     /**
      * Loads static html or a uri (with optional headers) in the WebView.
