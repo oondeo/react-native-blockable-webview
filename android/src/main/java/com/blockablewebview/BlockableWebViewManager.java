@@ -436,6 +436,7 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
         webView.getSettings().setBuiltInZoomControls(true);
         webView.getSettings().setDisplayZoomControls(false);
         webView.getSettings().setDomStorageEnabled(true);
+        // webView.getSettings().setUseWideViewPort(true);
 
         // Fixes broken full-screen modals/galleries due to body height being 0.
         webView.setLayoutParams(
@@ -457,6 +458,11 @@ public class BlockableWebViewManager extends SimpleViewManager<WebView> {
     @ReactProp(name = "scalesPageToFit")
     public void setScalesPageToFit(WebView view, boolean enabled) {
         view.getSettings().setUseWideViewPort(!enabled);
+    }
+
+    @ReactProp(name = "initialScale")
+    public void setInitialScale(WebView view, int scaleInPercent) {
+       view.setInitialScale(scaleInPercent);
     }
 
     @ReactProp(name = "domStorageEnabled")
