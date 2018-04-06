@@ -64,6 +64,7 @@ class WebView extends React.Component {
     onContentSizeChange: PropTypes.func,
     startInLoadingState: PropTypes.bool, // force WebView to show loadingView on first load
     style: ViewPropTypes.style,
+  
 
     /**
      * Loads static html or a uri (with optional headers) in the WebView.
@@ -129,7 +130,7 @@ class WebView extends React.Component {
      * Sets whether the webpage scales to fit the view and the user can change the scale.
      */
     scalesPageToFit: PropTypes.bool,
-
+    initialScale: PropTypes.number,
     /**
      * Sets the user-agent for this WebView. The user-agent can also be set in native using
      * WebViewConfig. This prop will overwrite that config.
@@ -170,6 +171,7 @@ class WebView extends React.Component {
   static defaultProps = {
     javaScriptEnabled : true,
     scalesPageToFit: true,
+    initialScale: 1,
     availableHosts: ['http://', 'https://'],
   };
 
@@ -229,6 +231,7 @@ class WebView extends React.Component {
         style={webViewStyles}
         source={resolveAssetSource(source)}
         scalesPageToFit={this.props.scalesPageToFit}
+        initialScale={this.props.initialScale}
         injectedJavaScript={this.props.injectedJavaScript}
         userAgent={this.props.userAgent}
         javaScriptEnabled={this.props.javaScriptEnabled}
